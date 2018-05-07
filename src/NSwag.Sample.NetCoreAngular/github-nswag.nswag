@@ -19,6 +19,7 @@
       "generateClientInterfaces": false,
       "generateOptionalParameters": false,
       "wrapDtoExceptions": false,
+      "processResponses": true,
       "useTransformOptionsMethod": false,
       "useTransformResultMethod": false,
       "generateDtoTypes": true,

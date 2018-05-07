@@ -25,6 +25,7 @@ namespace NSwag.CodeGeneration.TypeScript
             PromiseType = PromiseType.Promise;
             BaseUrlTokenName = "API_BASE_URL";
             ImportRequiredTypes = true;
+            ProcessResponses = true;
             QueryNullValue = "";
 
             TypeScriptGeneratorSettings = new TypeScriptGeneratorSettings
@@ -68,6 +69,9 @@ namespace NSwag.CodeGeneration.TypeScript
 
         /// <summary>Gets or sets the full name of the configuration class (<see cref="ClientBaseClass"/> must be set).</summary>
         public string ConfigurationClass { get; set; }
+
+        /// <summary>Gets or sets a value indicating whether to generate 'process*' methods in client class and use it to process response (default: true).</summary>
+        public bool ProcessResponses { get; set; }
 
         /// <summary>Gets or sets a value indicating whether to call 'transformOptions' on the base class or extension class.</summary>
         public bool UseTransformOptionsMethod { get; set; }

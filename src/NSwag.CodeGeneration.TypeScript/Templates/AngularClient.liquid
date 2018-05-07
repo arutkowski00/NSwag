@@ -45,13 +45,13 @@ export class {{ Class }} {% if HasBaseClass %}extends {{ BaseClass }} {% endif %
             body: content_,
 {%     endif -%}
 {%     if UseAngularHttpClient -%}
-            observe: "response",
-            responseType: "blob",
+            observe: {% if ProcessResponses %}"body"{% else %}"response"{% endif %},
+            responseType: {% if ProcessResponses %}"json"{% else %}"blob"{% endif %},
 {%     else -%}
             method: "{{ operation.HttpMethodLower }}",
 {%     endif -%}
 {%     if operation.IsFile and UseAngularHttpClient == false -%}
-            responseType: ResponseContentType.Blob,
+            responseType: ResponseContentType.{% if ProcessResponses %}Json{% else %}Blob{% endif %},
 {%     endif -%}
             headers: new {% if UseAngularHttpClient %}HttpHeaders{% else %}Headers{% endif %}({
 {%     for parameter in operation.HeaderParameters -%}
@@ -66,6 +66,7 @@ export class {{ Class }} {% if HasBaseClass %}extends {{ BaseClass }} {% endif %
             })
         };
 
+{%     if ProcessResponses -%}
 {%     if UseTransformOptionsMethod -%}
         return Observable.fromPromise(this.transformOptions(options_)).flatMap(transformedOptions_ => {
             return this.http.request({% if UseAngularHttpClient %}"{{ operation.HttpMethodLower }}", {% endif %}url_, transformedOptions_);
@@ -92,7 +93,11 @@ export class {{ Class }} {% if HasBaseClass %}extends {{ BaseClass }} {% endif %
             } else
                 return <Observable<{{ operation.ResultType }}>><any>Observable.throw(response_);
         });
+{%     else -%}
+        return this.http.request<{{ operation.ResultType }}>({% if UseAngularHttpClient %}"{{ operation.HttpMethodLower }}", {% endif %}url_, options_);
+{%     endif -%}
     }
+{%  if ProcessResponses -%}
 
     protected process{{ operation.ActualOperationNameUpper }}(response: {% if UseAngularHttpClient %}HttpResponseBase{% else %}Response{% endif %}): Observable<{{ operation.ResultType }}> {
         const status = response.status;
@@ -104,6 +109,7 @@ export class {{ Class }} {% if HasBaseClass %}extends {{ BaseClass }} {% endif %
 
         {% template Client.ProcessResponse %}
     }
+{% endif -%}
 {% endfor -%}
 }
 {% endif -%}

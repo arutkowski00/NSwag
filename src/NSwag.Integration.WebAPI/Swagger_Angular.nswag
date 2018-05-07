@@ -42,6 +42,7 @@
       "generateOptionalParameters": true,
       "wrapDtoExceptions": false,
       "clientBaseClass": "MyBaseClass",
+      "processResponses": true,
       "useTransformOptionsMethod": true,
       "useTransformResultMethod": true,
       "generateDtoTypes": true,

@@ -62,6 +62,9 @@ namespace NSwag.CodeGeneration.TypeScript.Models
         /// <summary>Gets a value indicating whether the client class has a base class.</summary>
         public bool HasConfigurationClass => HasBaseClass && !string.IsNullOrEmpty(ConfigurationClass);
 
+        /// <summary>Gets or sets a value indicating whether to generate 'process*' methods in client class and use it to process response (default: true).</summary>
+        public bool ProcessResponses => _settings.ProcessResponses;
+
         /// <summary>Gets or sets a value indicating whether to call 'transformOptions' on the base class or extension class.</summary>
         public bool UseTransformOptionsMethod => _settings.UseTransformOptionsMethod;
 

@@ -173,6 +173,13 @@ namespace NSwag.Commands.CodeGeneration
             set { Settings.ConfigurationClass = value; }
         }
 
+        [Argument(Name = "ProcessResponses", IsRequired = false, Description = "Generate 'process*' methods in client class and use it to process response (default: true).")]
+        public bool ProcessResponses
+        {
+            get { return Settings.ProcessResponses; }
+            set { Settings.ProcessResponses = value; }
+        }
+
         [Argument(Name = "UseTransformOptionsMethod", IsRequired = false, Description = "Call 'transformOptions' on the base class or extension class (default: false).")]
         public bool UseTransformOptionsMethod
         {

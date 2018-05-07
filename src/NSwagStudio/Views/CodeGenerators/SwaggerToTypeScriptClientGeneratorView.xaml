@@ -143,13 +143,19 @@
                                     </StackPanel>
                                 </StackPanel>
 
-                                <CheckBox IsChecked="{Binding Command.UseTransformOptionsMethod, Mode=TwoWay}" ToolTip="UseTransformOptionsMethod" Margin="0,0,0,12">
-                                    <TextBlock Text="Call 'transformOptions' on the base class or extension class" TextWrapping="Wrap" />
-                                </CheckBox>
+                                <CheckBox IsChecked="{Binding Command.ProcessResponses, Mode=TwoWay}" 
+                                          ToolTip="ProcessResponses"
+                                          Content="Generate 'process*' methods in client class and use it to process response" Margin="0,0,0,12" />
 
-                                <CheckBox IsChecked="{Binding Command.UseTransformResultMethod, Mode=TwoWay}" ToolTip="UseTransformResultMethod" Margin="0,0,0,12">
-                                    <TextBlock Text="Call 'transformResult' on the base class or extension class" TextWrapping="Wrap" />
-                                </CheckBox>
+                                <StackPanel Visibility="{Binding Command.ProcessResponses, Converter={StaticResource VisibilityConverter}}">
+                                    <CheckBox IsChecked="{Binding Command.UseTransformOptionsMethod, Mode=TwoWay}" ToolTip="UseTransformOptionsMethod" Margin="0,0,0,12">
+                                        <TextBlock Text="Call 'transformOptions' on the base class or extension class" TextWrapping="Wrap" />
+                                    </CheckBox>
+
+                                    <CheckBox IsChecked="{Binding Command.UseTransformResultMethod, Mode=TwoWay}" ToolTip="UseTransformResultMethod" Margin="0,0,0,12">
+                                        <TextBlock Text="Call 'transformResult' on the base class or extension class" TextWrapping="Wrap" />
+                                    </CheckBox>
+                                </StackPanel>
 
                                 <TextBlock Text="Methods with a protected access modifier to use in class extensions ('classname.methodname', comma separated)" FontWeight="Bold" Margin="0,0,0,6" />
                                 <TextBox ToolTip="ProtectedMethods" 
