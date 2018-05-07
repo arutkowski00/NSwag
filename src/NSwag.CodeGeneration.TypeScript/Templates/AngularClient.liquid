@@ -45,13 +45,13 @@ export class {{ Class }} {% if HasBaseClass %}extends {{ BaseClass }} {% endif %
             body: content_,
 {%     endif -%}
 {%     if UseAngularHttpClient -%}
-            observe: {% if ProcessResponses %}"body"{% else %}"response"{% endif %},
-            responseType: {% if ProcessResponses %}"json"{% else %}"blob"{% endif %},
+            observe: {% if ProcessResponses %}"response"{% else %}"body"{% endif %},
+            responseType: {% if ProcessResponses %}"blob"{% else %}"json"{% endif %},
 {%     else -%}
             method: "{{ operation.HttpMethodLower }}",
 {%     endif -%}
 {%     if operation.IsFile and UseAngularHttpClient == false -%}
-            responseType: ResponseContentType.{% if ProcessResponses %}Json{% else %}Blob{% endif %},
+            responseType: ResponseContentType.{% if ProcessResponses %}Blob{% else %}Json{% endif %},
 {%     endif -%}
             headers: new {% if UseAngularHttpClient %}HttpHeaders{% else %}Headers{% endif %}({
 {%     for parameter in operation.HeaderParameters -%}
