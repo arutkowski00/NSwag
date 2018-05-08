@@ -1,4 +1,5 @@
-﻿{% if IsAngular -%}
+﻿{% if ProcessResponses -%}
+{% if IsAngular -%}
 function throwException(message: string, status: number, response: string, headers: { [key: string]: any; }, result?: any): Observable<any> {
 {%     if WrapDtoExceptions -%}
     return Observable.throw(new SwaggerException(message, status, response, headers, result));
@@ -63,4 +64,5 @@ function blobToText(blob: Blob, q: ng.IQService): ng.IPromise<string> {
     });
 }
 
+{% endif -%}
 {% endif -%}
