@@ -41,6 +41,8 @@ namespace NSwag
                 resolver.IgnoreProperty(typeof(SwaggerOperation), "consumes");
                 resolver.IgnoreProperty(typeof(SwaggerOperation), "produces");
 
+                //resolver.IgnoreProperty(typeof(SwaggerParameter), "x-nullable");
+                
                 //resolver.IgnoreProperty(typeof(SwaggerResponse), "consumes"); => TODO map to response.content
                 //resolver.IgnoreProperty(typeof(SwaggerResponse), "produces");
 
@@ -51,6 +53,12 @@ namespace NSwag
 
                 resolver.IgnoreProperty(typeof(SwaggerResponse), "schema");
                 resolver.IgnoreProperty(typeof(SwaggerResponse), "examples");
+                resolver.IgnoreProperty(typeof(SwaggerResponse), "x-nullable");
+
+                resolver.IgnoreProperty(typeof(SwaggerSecurityScheme), "flow");
+                resolver.IgnoreProperty(typeof(SwaggerSecurityScheme), "authorizationUrl");
+                resolver.IgnoreProperty(typeof(SwaggerSecurityScheme), "tokenUrl");
+                resolver.IgnoreProperty(typeof(SwaggerSecurityScheme), "scopes");
             }
             else if (schemaType == SchemaType.Swagger2)
             {
@@ -69,9 +77,15 @@ namespace NSwag
 
                 resolver.IgnoreProperty(typeof(SwaggerDocument), "components");
                 resolver.IgnoreProperty(typeof(SwaggerParameter), "examples");
+                resolver.IgnoreProperty(typeof(SwaggerParameter), "x-position");
 
                 resolver.IgnoreProperty(typeof(SwaggerResponse), "content");
                 resolver.IgnoreProperty(typeof(SwaggerResponse), "links");
+
+                resolver.IgnoreProperty(typeof(SwaggerSecurityScheme), "scheme");
+                resolver.IgnoreProperty(typeof(SwaggerSecurityScheme), "bearerFormat");
+                resolver.IgnoreProperty(typeof(SwaggerSecurityScheme), "openIdConnectUrl");
+                resolver.IgnoreProperty(typeof(SwaggerSecurityScheme), "flows");
             }
 
             return resolver;

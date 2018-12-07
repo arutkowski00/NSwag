@@ -129,11 +129,12 @@ namespace NSwag.SwaggerGeneration.Processors
 
                 if (IsVoidResponse(returnType) == false)
                 {
-                    response.IsNullableRaw = statusCodeGroup.Any(r => r.IsNullable) && typeDescription.IsNullable;
+                    var isNullable = statusCodeGroup.Any(r => r.IsNullable) && typeDescription.IsNullable;
+
+                    response.IsNullableRaw = isNullable;
                     response.ExpectedSchemas = await GenerateExpectedSchemasAsync(statusCodeGroup, context);
                     response.Schema = await context.SchemaGenerator
-                        .GenerateWithReferenceAndNullability<JsonSchema4>(
-                            returnType, null, typeDescription.IsNullable, context.SchemaResolver)
+                        .GenerateWithReferenceAndNullabilityAsync<JsonSchema4>(returnType, null, isNullable, context.SchemaResolver)
                         .ConfigureAwait(false);
                 }
 
@@ -173,7 +174,7 @@ namespace NSwag.SwaggerGeneration.Processors
                 foreach (var response in group)
                 {
                     var isNullable = _settings.ReflectionService.GetDescription(response.ResponseType, null, _settings).IsNullable;
-                    var schema = await context.SchemaGenerator.GenerateWithReferenceAndNullability<JsonSchema4>(
+                    var schema = await context.SchemaGenerator.GenerateWithReferenceAndNullabilityAsync<JsonSchema4>(
                         response.ResponseType, null, isNullable, context.SchemaResolver)
                         .ConfigureAwait(false);
 
@@ -195,7 +196,7 @@ namespace NSwag.SwaggerGeneration.Processors
             var returnType = returnParameter.ParameterType;
             if (returnType == typeof(Task))
                 returnType = typeof(void);
-            else if (returnType.Name == "Task`1")
+            while (returnType.Name == "Task`1" || returnType.Name == "ActionResult`1")
                 returnType = returnType.GenericTypeArguments[0];
 
             if (IsVoidResponse(returnType))
@@ -209,7 +210,7 @@ namespace NSwag.SwaggerGeneration.Processors
             {
                 var returnParameterAttributes = GetParameterAttributes(returnParameter);
                 var typeDescription = _settings.ReflectionService.GetDescription(returnType, returnParameterAttributes, _settings);
-                var responseSchema = await context.SchemaGenerator.GenerateWithReferenceAndNullability<JsonSchema4>(
+                var responseSchema = await context.SchemaGenerator.GenerateWithReferenceAndNullabilityAsync<JsonSchema4>(
                     returnType, returnParameterAttributes, typeDescription.IsNullable, context.SchemaResolver).ConfigureAwait(false);
 
                 operation.Responses["200"] = new SwaggerResponse

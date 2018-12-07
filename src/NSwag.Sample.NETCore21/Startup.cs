@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NSwag.AspNetCore;
 
 namespace NSwag.Sample.NETCore21
 {
@@ -15,14 +14,20 @@ namespace NSwag.Sample.NETCore21
         }
 
         public IConfiguration Configuration { get; }
-        
+
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services
+                .AddMvc(options => options.AllowEmptyInputInBodyModelBinding = false)
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddSwagger();
+            // Add NSwag OpenAPI/Swagger DI services and configure documents
+            // For more advanced setup, see NSwag.Sample.NETCore20 project
+
+            services.AddOpenApiDocument(document => document.DocumentName = "a");
+            services.AddSwaggerDocument(document => document.DocumentName = "b");
         }
-        
+
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
@@ -36,8 +41,16 @@ namespace NSwag.Sample.NETCore21
 
             app.UseHttpsRedirection();
             app.UseMvc();
-            app.UseSwaggerWithApiDescription();
-            app.UseSwagger(typeof(Startup).Assembly, new SwaggerSettings { SwaggerRoute = "/oldswagger.json" });
+
+            // Add middlewares to service the OpenAPI/Swagger document and the web UI
+
+            // URLs: 
+            // - http://localhost:32367/swagger/a/swagger.json
+            // - http://localhost:32367/swagger/b/swagger.json
+            // - http://localhost:32367/swagger
+
+            app.UseSwagger(); // registers the two documents in separate routes
+            app.UseSwaggerUi3(); // registers a single Swagger UI (v3) with the two documents
         }
     }
 }

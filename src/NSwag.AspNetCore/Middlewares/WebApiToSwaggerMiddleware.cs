@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using NSwag.SwaggerGeneration;
 using NSwag.SwaggerGeneration.WebApi;
 
@@ -19,6 +21,8 @@ namespace NSwag.AspNetCore.Middlewares
     public class WebApiToSwaggerMiddleware
     {
         private readonly RequestDelegate _nextDelegate;
+        private readonly IOptions<MvcOptions> _mvcOptions;
+        private readonly IOptions<MvcJsonOptions> _mvcJsonOptions;
 
         private readonly string _path;
         private readonly IEnumerable<Type> _controllerTypes;
@@ -31,13 +35,17 @@ namespace NSwag.AspNetCore.Middlewares
 
         /// <summary>Initializes a new instance of the <see cref="WebApiToSwaggerMiddleware"/> class.</summary>
         /// <param name="nextDelegate">The next delegate.</param>
+        /// <param name="mvcOptions">The options.</param>
+        /// <param name="mvcJsonOptions">The json options.</param>
         /// <param name="path">The path.</param>
         /// <param name="controllerTypes">The controller types.</param>
         /// <param name="settings">The settings.</param>
         /// <param name="schemaGenerator">The schema generator.</param>
-        public WebApiToSwaggerMiddleware(RequestDelegate nextDelegate, string path, IEnumerable<Type> controllerTypes, SwaggerSettings<WebApiToSwaggerGeneratorSettings> settings, SwaggerJsonSchemaGenerator schemaGenerator)
+        public WebApiToSwaggerMiddleware(RequestDelegate nextDelegate, IOptions<MvcOptions> mvcOptions, IOptions<MvcJsonOptions> mvcJsonOptions, string path, IEnumerable<Type> controllerTypes, SwaggerSettings<WebApiToSwaggerGeneratorSettings> settings, SwaggerJsonSchemaGenerator schemaGenerator)
         {
             _nextDelegate = nextDelegate;
+            _mvcOptions = mvcOptions;
+            _mvcJsonOptions = mvcJsonOptions;
             _path = path;
             _controllerTypes = controllerTypes;
             _settings = settings;
@@ -74,7 +82,9 @@ namespace NSwag.AspNetCore.Middlewares
                 {
                     try
                     {
-                        var generator = new WebApiToSwaggerGenerator(_settings.GeneratorSettings, _schemaGenerator);
+                        var serializerSettings = _mvcJsonOptions.Value.SerializerSettings;
+                        var settings = _settings.CreateGeneratorSettings(serializerSettings, _mvcOptions.Value);
+                        var generator = new WebApiToSwaggerGenerator(settings, _schemaGenerator);
                         var document = await generator.GenerateForControllersAsync(_controllerTypes);
 
                         document.Host = context.Request.Host.Value ?? "";

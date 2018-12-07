@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NJsonSchema.Annotations;
 
 namespace NSwag.Sample
 {
@@ -62,6 +64,22 @@ namespace NSwag.Sample
             return new ObjectResult(Array.Empty<Pet>());
         }
 
+        // 'status' is intended to be an optional query string parameter
+        [HttpGet("findByStatus/{skip}/{sortOrder}")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(IEnumerable<Pet>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(SerializableError), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> FindByStatus([FromQuery] string[] status, int skip, int sortOrder)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await Task.Delay(0);
+            return new ObjectResult(Array.Empty<Pet>());
+        }
+
         // Included this extra action not present in http://petstore.swagger.io/#/ 
         // to represent an action with a required query parameter.
         [HttpGet("findByCategory")]
@@ -106,7 +124,7 @@ namespace NSwag.Sample
         [Produces("application/json")]
         [ProducesResponseType(typeof(SerializableError), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> EditPet(int petId, [FromForm] Pet pet)
+        public async Task<IActionResult> EditPetWithFormData(int petId, [FromForm] Pet pet)
         {
             if (!ModelState.IsValid)
             {
@@ -163,6 +181,21 @@ namespace NSwag.Sample
 
             await Task.Delay(0);
             return Ok(new ApiResponse());
+        }
+
+        [HttpPost("RequiredAndOptional")]
+        public void RequiredAndOptional(
+            int int_RequiredAndNotNullable,
+            int? int_RequiredAndNullable,
+            string string_RequiredAndNullable,
+            [NotNull]string string_RequiredAndNotNullable,
+
+            decimal decimalWithDefault_NotRequiredAndNotNullable = 1,
+            decimal? decimalWithDefault_NotRequiredAndNullable = 1,
+            string stringWithDefault_NotRequiredAndNullable = "foo",
+            [NotNull]string stringWithDefault_NotRequiredAndNotNullable = "foo")
+        {
+
         }
     }
 }

@@ -19,9 +19,12 @@ namespace NSwag
     {
         private string _name;
         private SwaggerParameterKind _kind;
+        private SwaggerParameterStyle _style;
         private bool _isRequired = false;
         private JsonSchema4 _schema;
         private IDictionary<string, OpenApiExample> _examples;
+        private bool _explode;
+        private int? _position;
 
         [JsonIgnore]
         internal SwaggerOperation ParentOperation => Parent as SwaggerOperation;
@@ -50,6 +53,30 @@ namespace NSwag
             }
         }
 
+        /// <summary>Gets or sets the style of the parameter (OpenAPI only).</summary>
+        [JsonProperty(PropertyName = "style", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public SwaggerParameterStyle Style
+        {
+            get => _style;
+            set
+            {
+                _style = value;
+                ParentOperation?.UpdateRequestBody(this);
+            }
+        }
+
+        /// <summary>Gets or sets the explode setting for the parameter (OpenAPI only).</summary>
+        [JsonProperty(PropertyName = "explode", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public bool Explode
+        {
+            get => _explode;
+            set
+            {
+                _explode = value;
+                ParentOperation?.UpdateRequestBody(this);
+            }
+        }
+
         /// <summary>Gets or sets a value indicating whether the parameter is required (default: false).</summary>
         [JsonProperty(PropertyName = "required", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         public bool IsRequired
@@ -66,18 +93,6 @@ namespace NSwag
         [JsonProperty(PropertyName = "allowEmptyValue", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         public bool AllowEmptyValue { get; set; }
 
-        /// <summary>Gets or sets the schema which is only available when <see cref="Kind"/> == body.</summary>
-        [JsonProperty(PropertyName = "schema", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
-        public JsonSchema4 Schema
-        {
-            get => _schema;
-            set
-            {
-                _schema = value;
-                ParentOperation?.UpdateRequestBody(this);
-            }
-        }
-
         /// <summary>Gets or sets the description. </summary>
         [Newtonsoft.Json.JsonProperty("description", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         public override string Description
@@ -87,24 +102,6 @@ namespace NSwag
             {
                 base.Description = value;
                 ParentOperation?.UpdateRequestBody(this);
-            }
-        }
-
-        /// <summary>Gets or sets the custom schema which is used when <see cref="Kind"/> != body.</summary>
-        [JsonProperty(PropertyName = "x-schema", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
-        public JsonSchema4 CustomSchema { get; set; }
-
-        /// <summary>Gets the actual schema, either the parameter schema itself (or its reference) or the <see cref="Schema"/> property when <see cref="Kind"/> == body.</summary>
-        /// <exception cref="InvalidOperationException" accessor="get">The schema reference path is not resolved.</exception>
-        [JsonIgnore]
-        public override JsonSchema4 ActualSchema
-        {
-            get
-            {
-                if (Reference is SwaggerParameter parameter)
-                    return parameter.ActualSchema;
-                else
-                    return Schema?.ActualSchema ?? CustomSchema?.ActualSchema ?? base.ActualSchema;
             }
         }
 
@@ -128,6 +125,48 @@ namespace NSwag
             }
         }
 
+        /// <summary>Gets or sets the schema which is only available when <see cref="Kind"/> == body.</summary>
+        [JsonProperty(PropertyName = "schema", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        public JsonSchema4 Schema
+        {
+            get => _schema;
+            set
+            {
+                _schema = value;
+                ParentOperation?.UpdateRequestBody(this);
+            }
+        }
+
+        /// <summary>Gets or sets the custom schema which is used when <see cref="Kind"/> != body.</summary>
+        [JsonProperty(PropertyName = "x-schema", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        public JsonSchema4 CustomSchema { get; set; }
+
+        /// <summary>Gets or sets the name.</summary>
+        [JsonProperty(PropertyName = "x-position", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        public int? Position
+        {
+            get => _position;
+            set
+            {
+                _position = value;
+                ParentOperation?.UpdateRequestBody(this);
+            }
+        }
+
+        /// <summary>Gets the actual schema, either the parameter schema itself (or its reference) or the <see cref="Schema"/> property when <see cref="Kind"/> == body.</summary>
+        /// <exception cref="InvalidOperationException" accessor="get">The schema reference path is not resolved.</exception>
+        [JsonIgnore]
+        public override JsonSchema4 ActualSchema
+        {
+            get
+            {
+                if (Reference is SwaggerParameter parameter)
+                    return parameter.ActualSchema;
+                else
+                    return Schema?.ActualSchema ?? CustomSchema?.ActualSchema ?? base.ActualSchema;
+            }
+        }
+
         /// <summary>Gets a value indicating whether the validated data can be null.</summary>
         /// <param name="schemaType">The schema type.</param>
         /// <returns>The result.</returns>
@@ -140,18 +179,28 @@ namespace NSwag
 
                 return IsNullableRaw.Value;
             }
-            else if (schemaType == SchemaType.OpenApi3 && IsNullableRaw.HasValue)
-                return IsNullableRaw.Value;
+            else if (schemaType == SchemaType.OpenApi3)
+            {
+                if (IsNullableRaw.HasValue)
+                    return IsNullableRaw.Value;
+                else if (Schema != null)
+                    return Schema.IsNullable(schemaType);
+                else if (CustomSchema != null)
+                    return CustomSchema.IsNullable(schemaType);
+            }
 
             return base.IsNullable(schemaType);
         }
 
         /// <summary>Gets a value indicating whether this is an XML body parameter.</summary>
         [JsonIgnore]
-        public bool IsXmlBodyParameter => Kind == SwaggerParameterKind.Body && (Parent as SwaggerOperation)?.ActualConsumes?.FirstOrDefault() == "application/xml";
+        public bool IsXmlBodyParameter => Kind == SwaggerParameterKind.Body &&
+                                          (Parent as SwaggerOperation)?.ActualConsumes?.FirstOrDefault() == "application/xml" &&
+                                          ((SwaggerOperation)Parent).ActualConsumes?.Contains("application/json") != true;
 
         /// <summary>Gets a value indicating whether this is an binary body parameter.</summary>
         [JsonIgnore]
-        public bool IsBinaryBodyParameter => Kind == SwaggerParameterKind.Body && (Parent as SwaggerOperation)?.ActualConsumes?.FirstOrDefault() == "application/octet-stream";
+        public bool IsBinaryBodyParameter => Kind == SwaggerParameterKind.Body &&
+                                             (Parent as SwaggerOperation)?.ActualConsumes?.FirstOrDefault() == "application/octet-stream";
     }
 }

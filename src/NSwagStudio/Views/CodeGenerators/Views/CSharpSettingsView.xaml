@@ -54,6 +54,11 @@
                     <TextBlock Text="Generate ToJson() and FromJson() methods" TextWrapping="Wrap" />
                 </CheckBox>
 
+                <CheckBox IsChecked="{Binding Command.EnforceFlagEnums, Mode=TwoWay}" 
+                          ToolTip="EnforceFlagEnums" Margin="0,0,0,12">
+                    <TextBlock Text="Always generate enums as bit flags (with [Flags] attribute)" TextWrapping="Wrap" />
+                </CheckBox>
+
                 <TextBlock Text="Class Style" FontWeight="Bold" Margin="0,0,0,6" />
                 <ComboBox SelectedItem="{Binding Command.ClassStyle, Mode=TwoWay}" 
                           ToolTip="ClassStyle"
@@ -99,8 +104,14 @@
                         <TextBlock Text="Generic Array Type" FontWeight="Bold" Margin="0,0,0,6" />
                         <TextBox Text="{Binding Command.ArrayType, Mode=TwoWay}" ToolTip="ArrayType" Margin="0,0,0,12" />
 
+                        <TextBlock Text="Generic Array Instance Type (empty = ArrayType)" FontWeight="Bold" Margin="0,0,0,6" />
+                        <TextBox Text="{Binding Command.ArrayInstanceType, Mode=TwoWay}" ToolTip="ArrayInstanceType" Margin="0,0,0,12" />
+
                         <TextBlock Text="Generic Dictionary Type" FontWeight="Bold" Margin="0,0,0,6" />
                         <TextBox Text="{Binding Command.DictionaryType, Mode=TwoWay}" ToolTip="DictionaryType" Margin="0,0,0,12" />
+
+                        <TextBlock Text="Generic Dictionary Instance Type (empty = DictionaryType)" FontWeight="Bold" Margin="0,0,0,6" />
+                        <TextBox Text="{Binding Command.DictionaryInstanceType, Mode=TwoWay}" ToolTip="DictionaryInstanceType" Margin="0,0,0,12" />
 
                         <TextBlock Text="Generic Array Base Type" FontWeight="Bold" Margin="0,0,0,6" />
                         <TextBox Text="{Binding Command.ArrayBaseType, Mode=TwoWay}" ToolTip="ArrayBaseType" Margin="0,0,0,12" />
